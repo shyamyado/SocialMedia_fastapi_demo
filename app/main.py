@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
@@ -6,6 +6,11 @@ from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from sqlalchemy.orm import Session
+from . import models
+from .database import engine, get_db
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -17,7 +22,7 @@ class Post(BaseModel):
 while True:
     try:
         conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres',
-                                password='password', cursor_factory=RealDictCursor)
+                                password='0123.', cursor_factory=RealDictCursor)
         cursor = conn.cursor()
         print("Database connection was succesfull")
         break
@@ -47,6 +52,10 @@ def find_index_post(id):
 def read_root():
     return {"message": "Welcome to my API"}
 
+@app.get("/sqlalchemy")
+def test_posts( db: Session = Depends(get_db)):
+    return {"status": "success"}
+
 @app.get("/posts")
 def get_posts():
     cursor.execute("""SELECT * from posts""")
@@ -63,7 +72,7 @@ def create_posts(post:Post):
 
 @app.get("/posts/{id}")
 def get_post(id:str):
-    cursor.execute(f"""SELECT * from posts WHERE id = {id}""")
+    cursor.execute(f"""SELECT * from posts WHERE id = %s""",(str(id),))
     post = cursor.fetchone()
     post = find_posts(int(id))
     if not post:

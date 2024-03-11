@@ -1,5 +1,7 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String, DateTime
 from .database import Base
+from datetime import datetime
+
 
 class Post(Base):
     __tablename__ = "posts"
@@ -8,4 +10,4 @@ class Post(Base):
     title = Column(String, nullable=False)
     content = Column(String, nullable=False)
     published = Column(Boolean, default=True)
-    
+    created_at = Column(DateTime, default=datetime.now)

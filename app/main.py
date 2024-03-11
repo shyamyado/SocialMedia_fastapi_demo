@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
 
-from typing import Optional
+from typing import Optional, List
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -57,7 +57,7 @@ def read_root():
     return {"message": "Welcome to my API"}
 
 
-@app.get("/posts")
+@app.get("/posts", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * from posts""")
     # posts = cursor.fetchall()
@@ -80,7 +80,7 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
     return  new_post
 
 
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model=schemas.Post)
 def get_post(id: int, db: Session = Depends(get_db)):
     # cursor.execute(f"""SELECT * from posts WHERE id = %s""",(str(id),))
     # post = cursor.fetchone()
@@ -109,7 +109,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.put("/posts/{id}")
+@app.put("/posts/{id}", response_model=schemas.Post)
 def update_post(
     id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db)
 ):

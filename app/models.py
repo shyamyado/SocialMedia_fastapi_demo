@@ -1,4 +1,14 @@
-from sqlalchemy import TIMESTAMP, Boolean, Column, Integer, String, DateTime, text, ForeignKey
+from sqlalchemy import (
+    TIMESTAMP,
+    Boolean,
+    Column,
+    Integer,
+    String,
+    DateTime,
+    text,
+    ForeignKey,
+)
+from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
 
@@ -12,7 +22,12 @@ class Post(Base):
     published = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
 
-    owner_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
+    owner_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # relationship with another class
+    owner = relationship("User")
 
 
 class User(Base):
